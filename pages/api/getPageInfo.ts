@@ -20,13 +20,13 @@ export default async function handler(
         const pageInfo: PageInfo | null = await sanityClient.fetch(query);
 
         if (!pageInfo) {
-            console.error("Error: No pageInfo found");
+            console.error("⚠ No PageInfo found");
             return res.status(500).json({ error: "No PageInfo found" });
         }
 
         res.status(200).json({ pageInfo });
     } catch (error) {
-        console.error("Sanity API Error:", error);
+        console.error("❌ Sanity API Error:", error);
         res.status(500).json({ error: "Failed to fetch PageInfo" });
     }
 }
