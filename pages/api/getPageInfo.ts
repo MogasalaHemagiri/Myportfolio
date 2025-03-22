@@ -1,32 +1,23 @@
-import type { NextApiRequest, NextApiResponse } from "next";
-import { groq } from "next-sanity";
-import { sanityClient } from "../../sanity";
-import { PageInfo } from "../../typings";
+export const fetchPageInfo = async () => {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  const apiUrl = `${baseUrl}/api/getPageInfo`;
 
-const query = groq`
-    *[_type == 'pageInfo'][0]
-`;
+  console.log("Fetching PageInfo from:", apiUrl);
 
-type Data = {
-    pageInfo?: PageInfo;
-    error?: string;
-};
+  try {
+    const res = await fetch(apiUrl);
+    const text = await res.text(); // Read response as text (not JSON)
+    console.log("Raw API Response:", text); // Log full response
 
-export default async function handler(
-    req: NextApiRequest,
-    res: NextApiResponse<Data>
-) {
+    // Ensure response is valid JSON
     try {
-        const pageInfo: PageInfo | null = await sanityClient.fetch(query);
-
-        if (!pageInfo) {
-            console.error("⚠ No PageInfo found");
-            return res.status(500).json({ error: "No PageInfo found" });
-        }
-
-        res.status(200).json({ pageInfo });
-    } catch (error) {
-        console.error("❌ Sanity API Error:", error);
-        res.status(500).json({ error: "Failed to fetch PageInfo" });
+      return JSON.parse(text);
+    } catch (jsonError) {
+      console.error("JSON Parse Error:", jsonError);
+      return null;
     }
-}
+  } catch (error) {
+    console.error("Error fetching PageInfo:", error);
+    return null;
+  }
+};
